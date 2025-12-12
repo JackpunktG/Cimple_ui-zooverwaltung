@@ -19,3 +19,4 @@
 /home/jack/Documents/Kurse/Csharp/Zooverwaltung/bin/Debug/net8.0/Npgsql.dll
 /home/jack/Documents/Kurse/Csharp/Zooverwaltung/bin/Debug/net8.0/System.Diagnostics.DiagnosticSource.dll
 /home/jack/Documents/Kurse/Csharp/Zooverwaltung/obj/Debug/net8.0/Zooverwaltung.csproj.CopyComplete
+/home/jack/Documents/Kurse/Csharp/Zooverwaltung/obj/Debug/net8.0/Zooverwaltung.sourcelink.json

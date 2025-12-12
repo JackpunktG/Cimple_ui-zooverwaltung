@@ -162,6 +162,31 @@ namespace Zooverwaltung
             return result;
         }
     }
+    public class Futter
+    {
+        public int Id { get; set; }
+        public string Futtername { get; set; }
+
+        public Futter(string futtername, int id = -1)
+        {
+            Id = id;
+            Futtername = futtername;
+        }
+
+        public override string ToString()
+        {
+            return $"id: {Id}, {Futtername}";
+        }
+        public static string List_to_string(List<Futter> futter)
+        {
+            string result = "";
+            foreach (Futter f in futter)
+            {
+                result += f.ToString() + "\n";
+            }
+            return result;
+        }
+    }
 
 
     public class Database
@@ -185,6 +210,24 @@ namespace Zooverwaltung
             {
                 Console.WriteLine($"Ein Fehler ist aufgetreten: {ex.Message}");
                 return false;
+            }
+        }
+
+        public void Populate_futter(List<Futter> futter)
+        {
+            using var conn = new NpgsqlConnection(connString);
+            conn.Open();
+            futter.Clear();
+            using (var cmd = new NpgsqlCommand("SELECT * FROM futter", conn))
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    futter.Add(new Futter(
+                        reader.GetString(1),
+                        reader.GetInt32(0)
+                    ));
+                }
             }
         }
 
@@ -579,6 +622,109 @@ namespace Zooverwaltung
                 return false;
             }
 
+        }
+
+        public void Futter_add(Futter f)
+        {
+            using var conn = new NpgsqlConnection(connString);
+            conn.Open();
+
+            using var cmd = new NpgsqlCommand("INSERT INTO futter(futter) VALUES (@futtername)", conn);
+            cmd.Parameters.AddWithValue("futtername", f.Futtername);
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ein Fehler ist aufgetreten: {ex.Message}");
+            }
+
+        }
+        public void Futter_delete(int id)
+        {
+
+            using var conn = new NpgsqlConnection(connString);
+            conn.Open();
+
+            using var cmd = new NpgsqlCommand("DELETE FROM futter WHERE id = @id", conn);
+            cmd.Parameters.AddWithValue("id", id);
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ein Fehler ist aufgetreten: {ex.Message}");
+            }
+        }
+
+        public void Tier_futter_add(int tier_id, int futter_id)
+        {
+            using var conn = new NpgsqlConnection(connString);
+            conn.Open();
+
+            using var cmd = new NpgsqlCommand("INSERT INTO tier_futter(tier_id, futter_id) VALUES (@tier_id, @futter_id)", conn);
+            cmd.Parameters.AddWithValue("tier_id", tier_id);
+            cmd.Parameters.AddWithValue("futter_id", futter_id);
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ein Fehler ist aufgetreten: {ex.Message}");
+            }
+
+        }
+
+        public void Tier_futter_delete(int tier_id, int futter_id)
+        {
+            using var conn = new NpgsqlConnection(connString);
+            conn.Open();
+
+            using var cmd = new NpgsqlCommand("DELETE FROM tier_futter WHERE tier_id = @tier_id AND futter_id = @futter_id", conn);
+            cmd.Parameters.AddWithValue("tier_id", tier_id);
+            cmd.Parameters.AddWithValue("futter_id", futter_id);
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ein Fehler ist aufgetreten: {ex.Message}");
+            }
+        }
+
+        public string Tier_futter_list(int tier_id)
+        {
+            using var conn = new NpgsqlConnection(connString);
+            conn.Open();
+
+            StringBuilder sb = new StringBuilder();
+            using (var cmd = new NpgsqlCommand("SELECT f.id, f.futter FROM futter f JOIN tier_futter tf ON f.id = tf.futter_id WHERE tf.tier_id = @tier_id", conn))
+            {
+                cmd.Parameters.AddWithValue("tier_id", tier_id);
+                try
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            sb.AppendLine($"id: {reader.GetInt32(0)}, {reader.GetString(1)}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ein Fehler ist aufgetreten: {ex.Message}");
+                }
+                return sb.ToString();
+            }
         }
     }
 }

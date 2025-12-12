@@ -4,6 +4,25 @@ using CimpleUI;
 namespace Zooverwaltung;
 public class Program
 {
+    public static void futter_ddm_populate(UIController uiC, DropdownMenu ddm, List<Futter> futterList)
+    {
+        string s = "";
+        for (int i = 0; i < futterList.Count; ++i)
+        {
+            if (i == futterList.Count - 1)
+            {
+                Futter f = futterList[i];
+                s += $"{f.Futtername}";
+            }
+            else
+            {
+                Futter f = futterList[i];
+                s += $"{f.Futtername}\n";
+            }
+        }
+        ddm.Populate(uiC, s);
+    }
+
     public static void tierart_ddm_populate(UIController uiC, DropdownMenu ddm, List<Tierart> tierartList)
     {
         string s = "";
@@ -89,6 +108,8 @@ public class Program
         db.Populate_gehege(gehegeList);
         List<Tiere> tierList = new();
         db.Populate_Tiere(tierList);
+        List<Futter> futterList = new();
+        db.Populate_futter(futterList);
 
 
 
@@ -106,7 +127,7 @@ public class Program
         using Window window = new(arena, "Online Shop", screenWidth, screenHeight);
         using UIController uiC = new(arena, window, sm, fh, 1024);
 
-        TabPannel tp = new(uiC, "Kontinent|Gehege|Tierart|Tiere|Uebersicht", TabPannelPossition.TABPANNEL_BUTTOM);
+        TabPannel tp = new(uiC, "Kontinent|Gehege|Tierart|Tiere|Futter|Uebersicht", TabPannelPossition.TABPANNEL_BUTTOM);
 
         //Constant Elements
         Button exit = new(uiC, (int)screenWidth - 100, 30, 80, 40, "Beenden", color: ColorRGBA.Red);
@@ -118,7 +139,7 @@ public class Program
 
         // Tab 1 - Kontinent
         bool kAktualisieren = false;
-        TextBox kAusgabenTb = new(uiC, screenWidth / 2, 190, 400, 50, tp, 1);
+        TextField kAusgabenTb = new(uiC, screenWidth / 2, 190, 400, 50, tp, 1);
 
         Label kBezeichnungL = new(uiC, 20, 80, 120, 50, "Bezeichnung: ", tp, 1, 1, 22, ColorRGBA.White);
         TextBox kBezeichnungTb = new(uiC, 145, 90, 300, 50, tp, 1);
@@ -136,7 +157,7 @@ public class Program
 
         // Tab 2 - Gehege
         bool gAktualisieren = false;
-        TextBox gAusgabenTb = new(uiC, screenWidth / 2, 190, 400, 50, tp, 2);
+        TextField gAusgabenTb = new(uiC, screenWidth / 2, 190, 400, 50, tp, 2);
         Label gAusgabenL = new(uiC, 500, 140, 400, 50, "Gehege Ausgaben:", tp, 2, color: ColorRGBA.White);
 
         Label gBezeichnungL = new(uiC, 20, 120, 120, 50, "Bezeichnung: ", tp, 2, 1, 22, ColorRGBA.White);
@@ -158,7 +179,7 @@ public class Program
 
         // Tabe 3 - Tierart
         bool tAktualisieren = false;
-        TextBox tAusgabenTb = new(uiC, screenWidth / 2, 190, 400, 50, tp, 3);
+        TextField tAusgabenTb = new(uiC, screenWidth / 2, 190, 400, 50, tp, 3);
 
         Label tBezeichnungL = new(uiC, 20, 80, 120, 50, "Bezeichnung: ", tp, 3, 1, 22, ColorRGBA.White);
         TextBox tBezeichnungTb = new(uiC, 145, 90, 300, 50, tp, 3);
@@ -175,7 +196,7 @@ public class Program
 
         // Tab 4 - Tiere
         bool tierAktualisieren = false;
-        TextBox tierAusgabenTb = new(uiC, screenWidth / 2, 190, 400, 50, tp, 4);
+        TextField tierAusgabenTb = new(uiC, screenWidth / 2, 190, 400, 50, tp, 4);
         Label tierAusgabenL = new(uiC, 500, 140, 400, 50, "Tierart Ausgaben:", tp, 4, color: ColorRGBA.White);
 
         Label tierNameL = new(uiC, 20, 80, 120, 50, "Name: ", tp, 4, 1, 22, ColorRGBA.White);
@@ -201,14 +222,34 @@ public class Program
         DropdownMenu tierTierDdm = new(uiC, "Tier auswahl", 50, 20, 400, 20, tp, 4);
 
 
+        // Tab 5 - Futter
+        //bool fAktualisieren = false;
+        Label fLabelL = new(uiC, 20, 60, 150, 50, "Neu futter: ", tp, 5, color: ColorRGBA.White);
+        TextBox fNameTb = new(uiC, 160, 70, 300, 30, tp, 5);
+        Button fAddB = new(uiC, 200, 130, 200, 30, "Hinzufuegen", tp, 5, color: ColorRGBA.Green);
+        Label fAusgabenL = new(uiC, 50, 250, 400, 50, "Futter sorten:", tp, 5, color: ColorRGBA.White);
+        TextField fAusgabenTb = new(uiC, 50, 300, 400, 50, tp, 5);
+        Button fLoschenB = new(uiC, 20, 130, 150, 30, "Loeschen", tp, 5, color: ColorRGBA.Red);
+        Button fAllB = new(uiC, 20, 180, 100, 50, "Zeig alle Futter", tp, 5, color: ColorRGBA.Blue);
 
-        //Tab 5 - Uebersicht
-        Label uLabelL = new(uiC, 20, 50, 450, 30, "Geben Sie eine SELECT Anfrage dirket zum Datenbank", tp, 5, color: ColorRGBA.White);
-        TextBox uAnfrageTB = new(uiC, 30, 80, 600, 50, tp, 5);
-        Button uAnfragB = new(uiC, 650, 80, 60, 30, "Senden", tp, 5, color: ColorRGBA.Purple);
-        Button uExportB = new(uiC, 900, 150, 80, 30, "Export CSV", tp, 5, color: ColorRGBA.Olive);
+        TextField fVerbindAusgabenTb = new(uiC, screenWidth / 2, 370, 400, 50, tp, 5);
+        DropdownMenu fTierfutterDdm = new(uiC, "Tier Futter suchen", 500, 330, 250, 30, tp, 5);
 
-        TextBox uAusgabenTb = new(uiC, 30, 200, 930, 100, tp, 5);
+        Label fVerbindL = new(uiC, 500, 110, 400, 50, "Waehl eine Teir und eine Futter", tp, 5, color: ColorRGBA.White);
+        Button fVerbindB = new(uiC, 720, 240, 180, 20, "Futter zuweisen", tp, 5, color: ColorRGBA.Green);
+        Button fEntfernenB = new(uiC, 720, 280, 180, 20, "Futter entfernen", tp, 5, color: ColorRGBA.Red);
+        DropdownMenu fFutterDdm = new(uiC, "Futter auswahl", 500, 200, 400, 20, tp, 5);
+        DropdownMenu fTierDdm = new(uiC, "Tier auswahl", 500, 160, 400, 20, tp, 5);
+
+
+
+        //Tab 6 - Uebersicht
+        Label uLabelL = new(uiC, 20, 50, 450, 30, "Geben Sie eine SELECT Anfrage dirket zum Datenbank", tp, 6, color: ColorRGBA.White);
+        TextBox uAnfrageTB = new(uiC, 30, 80, 600, 50, tp, 6);
+        Button uAnfragB = new(uiC, 650, 80, 60, 30, "Senden", tp, 6, color: ColorRGBA.Purple);
+        Button uExportB = new(uiC, 900, 150, 80, 30, "Export CSV", tp, 6, color: ColorRGBA.Olive);
+
+        TextField uAusgabenTb = new(uiC, 30, 200, 930, 100, tp, 6);
 
 
 
@@ -680,6 +721,8 @@ public class Program
             tierAusgabenTb.Clear();
             tierAusgabenTb.AppendText(Tiere.To_list_string(tierList, tierartList, gehegeList));
             tiere_ddm_populate(uiC, tierTierDdm, tierList);
+            tiere_ddm_populate(uiC, fTierDdm, tierList);
+            tiere_ddm_populate(uiC, fTierfutterDdm, tierList);
 
             tierAktualisieren = false;
 
@@ -734,6 +777,8 @@ public class Program
                 tiere_ddm_populate(uiC, tierTierDdm, tierList);
 
                 tierAktualisieren = false;
+                tiere_ddm_populate(uiC, fTierDdm, tierList);
+                tiere_ddm_populate(uiC, fTierfutterDdm, tierList);
             }
 
         };
@@ -747,8 +792,103 @@ public class Program
 
         };
 
+        // tab 5 - logic
+        futter_ddm_populate(uiC, fFutterDdm, futterList);
+        tiere_ddm_populate(uiC, fTierDdm, tierList);
+        tiere_ddm_populate(uiC, fTierfutterDdm, tierList);
 
-        // tab 5 - Logic
+        fAddB.Clicked += () =>
+        {
+            string name = fNameTb.ToText();
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                PopupNotice.Create(uiC, "Futter name ist leer!", "x");
+                fNameTb.Clear();
+                return;
+            }
+
+            Futter f = new(name);
+            db.Futter_add(f);
+            fNameTb.Clear();
+            db.Populate_futter(futterList);
+            fAusgabenTb.Clear();
+            fAusgabenTb.AppendText(Futter.List_to_string(futterList));
+            futter_ddm_populate(uiC, fFutterDdm, futterList);
+        };
+
+        fLoschenB.Clicked += () =>
+        {
+            string name = fNameTb.ToText();
+            Futter? f = futterList.FirstOrDefault(w => w.Futtername == name);
+            if (f == null)
+            {
+                PopupNotice.Create(uiC, "Fehler beim loeschen!", "x");
+                fNameTb.Clear();
+                return;
+            }
+            db.Futter_delete(f.Id);
+            db.Populate_futter(futterList);
+            fAusgabenTb.Clear();
+            fNameTb.Clear();
+            fAusgabenTb.AppendText(Futter.List_to_string(futterList));
+            futter_ddm_populate(uiC, fFutterDdm, futterList);
+        };
+
+        fFutterDdm.Selected += () =>
+        {
+        };
+
+        fAllB.Clicked += () =>
+        {
+            db.Populate_futter(futterList);
+            fAusgabenTb.Clear();
+            fAusgabenTb.AppendText(Futter.List_to_string(futterList));
+        };
+
+        fVerbindB.Clicked += () =>
+        {
+            if (fFutterDdm.SelectedIndex == -1 || fTierDdm.SelectedIndex == -1)
+            {
+                PopupNotice.Create(uiC, "Fehler beim zuweisen. Waehl eine Tier und eine Futter aus!", "x");
+                return;
+            }
+
+            int tier_id = tierList[fTierDdm.SelectedIndex].Id;
+            int futter_id = futterList[fFutterDdm.SelectedIndex].Id;
+
+            db.Tier_futter_add(tier_id, futter_id); fTierfutterDdm.Reset();
+            fVerbindAusgabenTb.Clear();
+        };
+
+        fEntfernenB.Clicked += () =>
+        {
+            if (fFutterDdm.SelectedIndex == -1 || fTierDdm.SelectedIndex == -1)
+            {
+                PopupNotice.Create(uiC, "Fehler beim entfernen. Waehl eine Tier und eine Futter aus!", "x");
+                return;
+            }
+
+            int tier_id = tierList[fTierDdm.SelectedIndex].Id;
+            int futter_id = futterList[fFutterDdm.SelectedIndex].Id;
+
+            db.Tier_futter_delete(tier_id, futter_id);
+            fTierfutterDdm.Reset();
+            fVerbindAusgabenTb.Clear();
+        };
+
+        fTierfutterDdm.Selected += () =>
+        {
+            if (fTierfutterDdm.SelectedIndex == -1)
+                return;
+
+            int tier_id = tierList[fTierfutterDdm.SelectedIndex].Id;
+            fVerbindAusgabenTb.Clear();
+            fVerbindAusgabenTb.AppendText(db.Tier_futter_list(tier_id));
+        };
+
+
+
+        // tab 6 - Logic
         uAnfragB.Clicked += () =>
         {
 
@@ -786,7 +926,10 @@ public class Program
         {
             uiC.EventCheck();
             uiC.Update(0.16f);
+            if (fTierfutterDdm.State == DropdownMenu_State.DROPDOWN_NORMAL)
+                fVerbindAusgabenTb.Clear();
             uiC.EasyRender();
+
         }
     }
 }
